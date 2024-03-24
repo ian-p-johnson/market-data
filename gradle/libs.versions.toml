@@ -1,0 +1,49 @@
+[versions]
+lombokVersion = "1.18.30"
+fastutilVersion = "5.0.9"
+recallVersion = "1.1.0"
+bablVersion = "0.11.0"
+caffeineVersion = "3.1.8"
+log4j2Version = "2.17.1"
+
+aeronVersion = "1.42.1"
+# aeronVersion = "1.43.0-SNAPSHOT"
+agronaVersion = "1.20.0"
+
+chronicleAffinityVersion = "3.23.3"
+
+
+jlineVersion = "3.23.0"
+picoJlineVersion = "4.7.4"
+picocliVersion = "4.7.4"
+
+mockitoVersion = "5.7.0"
+
+#aeronVersion = "1.41.4"
+sbeVersion = "1.28.3"
+#agronaVersion = "1.6.0"
+
+
+[libraries]
+chronicleAffinity = { group = "net.openhft", name = "affinity", version.ref = "chronicleAffinityVersion" }
+mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoVersion" }
+fastutil = { group = "fastutil", name = "fastutil", version.ref = "fastutilVersion" }
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombokVersion" }
+aeron = { group = "io.aeron", name = "aeron-all", version.ref = "aeronVersion" }
+agrona = { group = "org.agrona", name = "agrona", version.ref = "agronaVersion" }
+sbe = { group = "uk.co.real-logic", name = "sbe-tool", version.ref = "sbeVersion" }
+recall = { group = "com.aitusoftware", name = "recall-store", version.ref = "recallVersion" }
+babl = { group = "com.aitusoftware", name = "babl", version.ref = "bablVersion" }
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeineVersion" }
+picocli = { group = "info.picocli", name = "picocli", version.ref = "picocliVersion" }
+jline = { group = "org.jline", name = "jline", version.ref = "jlineVersion" }
+picoJline = { group = "info.picocli", name = "picocli-shell-jline3", version.ref = "picoJlineVersion" }
+
+log4jCore = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j2Version" }
+log4jSlf4jImpl = { group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version.ref = "log4j2Version" }
+log4jApi = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j2Version" }
+log4jJul = { group = "org.apache.logging.log4j", name = "log4j-jul", version.ref = "log4j2Version" }
+
+
+[bundles]
+log4j2 = ["log4jCore", "log4jSlf4jImpl", "log4jApi", "log4jJul"]
