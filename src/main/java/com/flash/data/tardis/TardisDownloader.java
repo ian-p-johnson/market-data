@@ -228,7 +228,8 @@ public class TardisDownloader {
             CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX);
     CronParser cronParser = new CronParser(cronDefinition);
     Operation op = new LoadOperation();
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
+        System.out.printf("%s\n", Arrays.toString(args));
         TardisDownloader load = new TardisDownloader();
         String exchanges = null, symbols = null, types = null, dateFrom = null, dateTo = null;
         int nThreads = N_THREADS;
@@ -279,6 +280,11 @@ public class TardisDownloader {
                     load.dry = true;
                     break;
                 case "-regex":
+                    int nCnx = 0, nType = 0;
+                    var mCnx = new HashMap<String, Integer>();
+                    var mType = new HashMap<>();
+                    var mSym = new HashMap<String, HashMap>();
+
 // ^([^_]+)_(.+)_(\d{4}-\d{2}-\d{2})_([^_]+)\.csv\.gz$
 // ascendex incremental_book_L2 2024-01-20 EXRD-PERP csv.gz
 // ^([^_]+)_(.+)_(\d{4})-(\d{2})-(\d{2})_([^_]+)\.csv\.gz$
@@ -286,26 +292,47 @@ public class TardisDownloader {
 // -regex /mnt/nvme_4tb/240307-1 "^([^_]+)_(.+)_(\d{4})-(\d{2})-(\d{2})_([^_]+)(\.csv\.gz)$" "%s/%s/%s/%s/%s/%s%s"
 // ascendex/incremental_book_L2/2021/03/28/DAFI-USDT.csv.gz
 // ascendex/DAFI-USDT/incremental_book_L2/2021/03/28.csv.gz
+// "^([^_]+)_(.+)_(\d{4})-(\d{2})-(\d{2})_(.+)(\.csv\.gz)$" "%s/%s/%s/%s/%s/%s%s"
                     String fileName = args[++argIx];
                     String fromRegex = args[++argIx];
                     String format = args[++argIx];
                     format += "\n";
                     Pattern pattern = Pattern.compile(fromRegex);
+                    int ct = 0, hit = 0;
                     try (
                             BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)))) {
                         String msg = null;
-                        while ((msg = rdr.readLine()) != null) {
-                            Matcher matcher = pattern.matcher(msg);
-                            StringBuilder b = new StringBuilder();
+                        Matcher matcher = null;
+                        StringBuilder b = new StringBuilder();
+                        while ((msg = rdr.readLine()) != null)
+                        try {
+                            ct++; b.setLength(0);
+                            matcher = pattern.matcher(msg);
                             matcher.find();
                             for (int ix = 0; ix < matcher.groupCount(); ix++)
                                 b.append("(").append(matcher.group(ix+1)).append(")");
+                            if (matcher.groupCount() != 7) throw new RuntimeException();
+                            var cnxIx = mCnx.computeIfAbsent(matcher.group(1), (k) -> Integer.valueOf(mCnx.size()+1));
+                            var typeIx = mType.computeIfAbsent(matcher.group(2), (k) -> Integer.valueOf(mType.size()+1));
+                            var sym = mSym.computeIfAbsent(matcher.group(1), (k) -> new HashMap<>());
+                            var symIx = sym.computeIfAbsent(matcher.group(6), (k) -> Integer.valueOf(sym.size()+1));
+                            hit++;
+                        } catch (Throwable thr) {
+                            System.out.printf("%d: %s\n", ct, msg);
                             System.out.printf("%s:%d:%s %s\n", matcher.matches(), matcher.groupCount(), b, msg);
                             System.out.printf(format,
-                                    matcher.group(1), matcher.group(2), matcher.group(3),
-                                    matcher.group(4), matcher.group(5), matcher.group(6), matcher.group(7));
+                                    matcher.group(1), matcher.group(2),
+                                    matcher.group(3), matcher.group(4), matcher.group(5),
+                                    matcher.group(6), matcher.group(7));
+
                         }
                     }
+                    System.out.printf("hit %,d/%,d\ncnx = %s\ntype = %s\n",
+                            hit, ct,
+                            mCnx, mType);
+                    for (var entry: mSym.entrySet())
+                        System.out.printf("%,3d: %s\n", entry.getValue().size(), entry.getKey());
+                    System.exit(0);
                     break;
                 case "-rename":
                     Files.list(Path.of("tmp")).forEach((f) -> {
